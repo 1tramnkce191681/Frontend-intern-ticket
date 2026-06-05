@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     await loginMutation.mutateAsync({ email, password });
     setIsAuthenticated(true);
-    router.push("/dashboard");
+    router.push("/tickets");
   };
 
   const logout = async () => {

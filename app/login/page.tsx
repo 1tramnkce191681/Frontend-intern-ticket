@@ -23,11 +23,14 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
-  // Redirect nếu đã đăng nhập
+  // Redirect nếu đã đăng nhập, không flash login page
   useEffect(() => {
     if (isAuthenticated) {
       router.push("/tickets");
+    } else {
+      setShowLogin(true);
     }
   }, [isAuthenticated, router]);
 
@@ -52,52 +55,60 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-black p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your credentials to access the support ticket system</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                {...register("email")}
-                disabled={isLoading}
-              />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-            </div>
+    <>
+      {!showLogin ? (
+        <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-black p-4">
+          <div className="text-lg">Redirecting...</div>
+        </div>
+      ) : (
+        <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-black p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-2xl">Login</CardTitle>
+              <CardDescription>Enter your credentials to access the support ticket system</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    {...register("email")}
+                    disabled={isLoading}
+                  />
+                  {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                {...register("password")}
-                disabled={isLoading}
-              />
-              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    {...register("password")}
+                    disabled={isLoading}
+                  />
+                  {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+                </div>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+                {error && <p className="text-sm text-red-500">{error}</p>}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
-          </form>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Logging in..." : "Login"}
+                </Button>
+              </form>
 
-          <div className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
-            <p>Demo credentials:</p>
-            <p>Email: admin@example.com</p>
-            <p>Password: password123</p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+              <div className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">
+                <p>Demo credentials:</p>
+                <p>Email: admin@example.com</p>
+                <p>Password: password123</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </>
   );
 }
