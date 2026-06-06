@@ -1,5 +1,3 @@
-// types/index.ts
-
 export type TicketStatus = "Open" | "In Progress" | "Done";
 
 export interface Ticket {
@@ -15,4 +13,13 @@ export interface Comment {
   ticketId: string;
   content: string;
   createdAt: string;
+}
+
+export interface TicketWithComments extends Ticket {
+  comments: Comment[];
+}
+
+export interface ApiError {
+  message: string;
+  status?: number;
 }
