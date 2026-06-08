@@ -7,9 +7,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Plus, Search, AlertCircle, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+
+const SkeletonCard = () => (
+  <Card>
+    <CardHeader>
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-full" />
+        </div>
+        <Skeleton className="h-6 w-24" />
+      </div>
+    </CardHeader>
+    <CardContent>
+      <Skeleton className="h-4 w-2/3" />
+    </CardContent>
+  </Card>
+);
 
 const statusColors: Record<TicketStatus, string> = {
   Open: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20",
@@ -18,33 +37,16 @@ const statusColors: Record<TicketStatus, string> = {
 };
 
 export default function TicketsPage() {
-  const { data: tickets, isLoading, error } = useTickets();
+  const { data: tickets, isLoading, error, refetch } = useTickets();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "All">("All");
 
   const filteredTickets = tickets?.filter((ticket) => {
     const matchesSearch =
-      ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.description.toLowerCase().includes(searchQuery.toLowerCase());
+      ticket.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "All" || ticket.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading tickets...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-500">Error loading tickets</div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto p-6">
@@ -53,7 +55,7 @@ export default function TicketsPage() {
           <h1 className="text-3xl font-bold">Support Tickets</h1>
           <p className="text-zinc-600 dark:text-zinc-400 mt-1">Manage and track support tickets</p>
         </div>
-        <Link href="/dashboard/tickets/new">
+        <Link href="/tickets/create">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             New Ticket
@@ -61,6 +63,7 @@ export default function TicketsPage() {
         </Link>
       </div>
 
+      {!isLoading && !error && (
       <div className="flex gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-400" />
@@ -84,9 +87,33 @@ export default function TicketsPage() {
           ))}
         </div>
       </div>
+      )}
 
       <div className="grid gap-4">
-        {filteredTickets?.length === 0 ? (
+        {isLoading ? (
+          <>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </>
+        ) : error ? (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error loading tickets</AlertTitle>
+            <AlertDescription>
+              Failed to load tickets. Please try again.
+              <Button
+                onClick={() => refetch()}
+                variant="outline"
+                size="sm"
+                className="ml-2"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ) : filteredTickets?.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-zinc-500">
               No tickets found
