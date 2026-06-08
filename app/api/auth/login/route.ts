@@ -1,32 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
+import { loginSchema } from "@/lib/validations";
+
+const AUTH_TOKEN = "mock-token-12345";
+const AUTH_COOKIE = "auth-token";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const result = loginSchema.safeParse(body);
 
-    // Mock credentials
-    if (email === "admin@example.com" && password === "password123") {
+    if (!result.success) {
       return NextResponse.json(
-        {
-          token: "mock-jwt-token-" + Date.now(),
-          user: {
-            id: "1",
-            email: "admin@example.com",
-            name: "Admin User",
-          },
-        },
-        { status: 200 }
+        { error: result.error.errors[0]?.message || "Invalid credentials" },
+        { status: 400 }
       );
     }
 
-    return NextResponse.json(
-      { error: "Invalid credentials" },
-      { status: 401 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    const response = NextResponse.json({ success: true });
+    response.cookies.set(AUTH_COOKIE, AUTH_TOKEN, {
+      path: "/",
+      maxAge: 60 * 60 * 8,
+    });
+
+    return response;
+  } catch {
+    return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
 }

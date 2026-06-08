@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
-  return NextResponse.json(
-    { success: true },
-    { status: 200 }
-  );
+const AUTH_COOKIE = "auth-token";
+
+export async function POST() {
+  const response = NextResponse.json({ success: true });
+  response.cookies.set(AUTH_COOKIE, "", { path: "/", maxAge: 0 });
+  return response;
 }

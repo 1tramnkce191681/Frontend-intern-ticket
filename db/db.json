@@ -1,0 +1,68 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "admin@example.com",
+      "password": "password123",
+      "name": "Admin User"
+    }
+  ],
+  "tokens": [],
+  "tickets": [
+    {
+      "id": "1",
+      "title": "Login page not responding",
+      "description": "The login page shows a blank screen and doesn't respond to input",
+      "status": "Open",
+      "createdAt": "2026-06-03T21:19:00.000Z"
+    },
+    {
+      "id": "2",
+      "title": "Dashboard loading slowly",
+      "description": "The dashboard takes too long to load, affects user experience",
+      "status": "In Progress",
+      "createdAt": "2026-06-04T21:19:00.000Z"
+    },
+    {
+      "id": "3",
+      "title": "Ticket creation successful",
+      "description": "Successfully implemented the ticket creation feature",
+      "status": "Done",
+      "createdAt": "2026-06-05T16:19:00.000Z"
+    },
+    {
+      "id": "4",
+      "title": "Mobile UI alignment issues",
+      "description": "The cards are overlapping on smaller screens like iPhone SE",
+      "status": "Open",
+      "createdAt": "2026-06-05T17:30:00.000Z"
+    }
+  ],
+  "comments": {
+    "1": [
+      {
+        "id": "1",
+        "ticketId": "1",
+        "content": "We are investigating this issue",
+        "createdAt": "2026-06-04T21:19:00.000Z"
+      }
+    ],
+    "2": [
+      {
+        "id": "2",
+        "ticketId": "2",
+        "content": "Working on performance optimization",
+        "createdAt": "2026-06-05T09:19:00.000Z"
+      }
+    ],
+    "3": [
+      {
+        "id": "3",
+        "ticketId": "3",
+        "content": "Feature successfully deployed to production",
+        "createdAt": "2026-06-05T14:19:00.000Z"
+      }
+    ],
+    "4": []
+  }
+}

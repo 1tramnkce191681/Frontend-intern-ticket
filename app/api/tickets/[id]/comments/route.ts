@@ -1,33 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Comment } from "@/types";
-
-// Mock comments data
-const mockComments: Record<string, Comment[]> = {
-  "1": [
-    {
-      id: "1",
-      ticketId: "1",
-      content: "We are investigating this issue",
-      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ],
-  "2": [
-    {
-      id: "2",
-      ticketId: "2",
-      content: "Working on performance optimization",
-      createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-    },
-  ],
-  "3": [
-    {
-      id: "3",
-      ticketId: "3",
-      content: "Feature successfully deployed to production",
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    },
-  ],
-};
+import { getCommentsByTicketId, addComment } from "@/lib/api/db";
 
 export async function GET(
   request: NextRequest,
@@ -35,8 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const comments = mockComments[id] || [];
-
+    const comments = getCommentsByTicketId(id);
     return NextResponse.json(comments, { status: 200 });
   } catch (error) {
     return NextResponse.json(
@@ -54,19 +25,14 @@ export async function POST(
     const { id } = await params;
     const { content } = await request.json();
 
-    if (!mockComments[id]) {
-      mockComments[id] = [];
+    if (!content) {
+      return NextResponse.json(
+        { error: "Comment content is required" },
+        { status: 400 }
+      );
     }
 
-    const newComment: Comment = {
-      id: String(Object.values(mockComments).flat().length + 1),
-      ticketId: id,
-      content,
-      createdAt: new Date().toISOString(),
-    };
-
-    mockComments[id].push(newComment);
-
+    const newComment = addComment(id, content);
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {
     return NextResponse.json(
