@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { login, logout, type LoginCredentials } from "@/lib/api";
 
@@ -17,10 +17,12 @@ export function useLogin() {
 
 export function useLogout() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: logout,
     onSuccess: () => {
+      queryClient.clear(); // Xóa sạch cache dữ liệu tickets
       router.push("/login");
     },
   });

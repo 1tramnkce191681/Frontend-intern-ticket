@@ -1,16 +1,12 @@
 "use client";
 
-import { useAuth } from "@/contexts/auth-context";
+import { useLogout } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut, Ticket } from "lucide-react";
 import Link from "next/link";
 
 export function Navigation() {
-  const { user, logout, isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  const logoutMutation = useLogout();
 
   return (
     <nav className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
@@ -21,20 +17,16 @@ export function Navigation() {
             <span className="font-semibold text-lg">Support Tickets</span>
           </Link>
 
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-zinc-600 dark:text-zinc-400">
-              {user?.email}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => logout()}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Logout
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            className="gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
         </div>
       </div>
     </nav>
