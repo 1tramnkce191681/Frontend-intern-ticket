@@ -9,6 +9,7 @@ export function useCreateTicket() {
   return useMutation({
     mutationFn: createTicket,
     onSuccess: () => {
+      // Invalidate tickets list to trigger refetch
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       router.push("/tickets");
     },

@@ -78,6 +78,7 @@ export default function TicketDetailPage() {
 
   const handleStatusChange = (newStatus: TicketStatus) => {
     setStatusToast("");
+    // Nếu muốn làm Optimistic Update (Bonus), bạn sẽ cập nhật cache ngay tại đây
     updateStatusMutation.mutate(newStatus, {
       onError: (err) => {
         setStatusToast(err instanceof Error ? err.message : "Failed to update status");
@@ -140,7 +141,9 @@ export default function TicketDetailPage() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle className="text-2xl">{ticket.title}</CardTitle>
-                <CardDescription className="mt-2 text-base">{ticket.description}</CardDescription>
+                <div className="mt-4 text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+                  {ticket.description}
+                </div>
               </div>
               <StatusBadge status={ticket.status} />
             </div>

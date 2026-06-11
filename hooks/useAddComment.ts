@@ -7,6 +7,7 @@ export function useAddComment(ticketId: string) {
   return useMutation({
     mutationFn: (content: string) => addComment(ticketId, content),
     onSuccess: () => {
+      // Refetch ticket detail to show new comment
       queryClient.invalidateQueries({ queryKey: ["ticket", ticketId] });
     },
   });
