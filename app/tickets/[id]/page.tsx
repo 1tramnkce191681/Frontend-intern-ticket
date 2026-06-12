@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useTicket } from "@/hooks/useTicket";
 import { useAddComment } from "@/hooks/useAddComment";
 import { useUpdateStatus } from "@/hooks/useUpdateStatus";
 import { MockApiError } from "@/lib/mock-api";
 import type { TicketStatus } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -95,6 +96,7 @@ const CommentCard = ({ content, date, author }: { content: string, date: string,
 export default function TicketDetailPage() {
   const params = useParams();
   const ticketId = params.id as string;
+  const queryClient = useQueryClient();
   const { data: ticket, isLoading, isError, error, refetch } = useTicket(ticketId);
   const addCommentMutation = useAddComment(ticketId);
   const updateStatusMutation = useUpdateStatus(ticketId);
@@ -112,7 +114,7 @@ export default function TicketDetailPage() {
     addCommentMutation.mutate(newComment, {
       onSuccess: () => {
         setNewComment("");
-        refetch();
+        queryClient.invalidateQueries({ queryKey: ["ticket", ticketId] });
       },
       onError: (err) => {
         setCommentError(err instanceof Error ? err.message : "Failed to add comment");
@@ -120,15 +122,18 @@ export default function TicketDetailPage() {
     });
   };
 
-  const handleStatusChange = (newStatus: TicketStatus) => {
+  const handleStatusChange = useCallback((newStatus: TicketStatus) => {
     setStatusToast("");
-    // Nếu muốn làm Optimistic Update (Bonus), bạn sẽ cập nhật cache ngay tại đây
     updateStatusMutation.mutate(newStatus, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["ticket", ticketId] });
+        queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      },
       onError: (err) => {
         setStatusToast(err instanceof Error ? err.message : "Failed to update status");
       },
     });
-  };
+  }, [ticketId, queryClient, updateStatusMutation]);
 
   if (!isLoading && isNotFound) {
     return (
