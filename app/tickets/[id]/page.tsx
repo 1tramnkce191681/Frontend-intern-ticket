@@ -1,13 +1,14 @@
 "use client";
 
+import * as React from "react";
 import { useState, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useTicket } from "@/hooks/useTicket";
 import { useAddComment } from "@/hooks/useAddComment";
 import { useUpdateStatus } from "@/hooks/useUpdateStatus";
-import { MockApiError } from "@/lib/mock-api";
+import { MockApiError, deleteTicket, updateTicket } from "@/lib/mock-api";
 import type { TicketStatus } from "@/types";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,8 +25,30 @@ import {
   Hash, 
   Calendar,
   User,
-  CheckCircle2
+  CheckCircle2,
+  Trash2,
+  Loader2,
+  Edit2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import Link from "next/link";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -95,6 +118,7 @@ const CommentCard = ({ content, date, author }: { content: string, date: string,
 
 export default function TicketDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const ticketId = params.id as string;
   const queryClient = useQueryClient();
   const { data: ticket, isLoading, isError, error, refetch } = useTicket(ticketId);
@@ -103,6 +127,33 @@ export default function TicketDetailPage() {
   const [newComment, setNewComment] = useState("");
   const [commentError, setCommentError] = useState("");
   const [statusToast, setStatusToast] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+
+  const updateMutation = useMutation({
+    mutationFn: () => updateTicket(ticketId, { title: editTitle, description: editDescription }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ticket", ticketId] });
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      setIsEditDialogOpen(false);
+    },
+    onError: (err) => {
+      setStatusToast(err instanceof Error ? err.message : "Failed to update ticket");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteTicket(ticketId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      router.push("/tickets");
+    },
+    onError: (err) => {
+      setCommentError(err instanceof Error ? err.message : "Failed to delete ticket");
+    },
+  });
 
   const isNotFound = error instanceof MockApiError && error.status === 404;
 
@@ -293,9 +344,56 @@ export default function TicketDetailPage() {
 
             <Card className="border-primary/20 bg-primary/5">
               <CardHeader>
-                <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Quick Actions</CardTitle>
+                <CardTitle className="text-sm font-bold uppercase tracking-widest text-primary">Update Status</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold uppercase text-muted-foreground">General</label>
+                  <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+                    if (open) {
+                      setEditTitle(ticket.title);
+                      setEditDescription(ticket.description);
+                    }
+                    setIsEditDialogOpen(open);
+                  }}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="w-full justify-start">
+                        <Edit2 className="mr-2 h-4 w-4" /> Edit Details
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Ticket</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Title</label>
+                          <input 
+                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Description</label>
+                          <Textarea 
+                            className="min-h-[100px]"
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsEditDialogOpen(false)} disabled={updateMutation.isPending}>Cancel</Button>
+                        <Button onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending || !editTitle.trim()}>
+                          {updateMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                          Save Changes
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-[11px] font-bold uppercase text-muted-foreground">Change Status</label>
                   <div className="flex flex-col gap-2">
@@ -316,6 +414,38 @@ export default function TicketDetailPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="w-full transition-colors border-destructive/20 hover:border-destructive/40">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Ticket
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Ticket</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this ticket?
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      deleteMutation.mutate();
+                    }}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={deleteMutation.isPending}
+                  >
+                    {deleteMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    {deleteMutation.isPending ? "Deleting..." : "Delete Ticket"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       ) : null}

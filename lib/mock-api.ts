@@ -108,6 +108,21 @@ export async function getTicketById(id: string): Promise<TicketWithComments> {
   };
 }
 
+export async function updateTicket(
+  id: string,
+  data: { title: string; description: string }
+): Promise<Ticket> {
+  await delay(400);
+
+  const index = tickets.findIndex((t) => t.id === id);
+  if (index === -1) {
+    throw new MockApiError("Ticket not found", 404);
+  }
+
+  tickets[index] = { ...tickets[index], ...data };
+  return tickets[index];
+}
+
 export async function createTicket(data: {
   title: string;
   description: string;
@@ -162,4 +177,22 @@ export async function addComment(
 
   comments.push(newComment);
   return newComment;
+}
+
+export async function deleteTicket(id: string): Promise<void> {
+  await delay(500);
+
+  const index = tickets.findIndex((t) => t.id === id);
+  if (index === -1) {
+    throw new MockApiError("Ticket not found", 404);
+  }
+
+  tickets.splice(index, 1);
+
+  // Filter out comments for this ticket
+  for (let i = comments.length - 1; i >= 0; i--) {
+    if (comments[i].ticketId === id) {
+      comments.splice(i, 1);
+    }
+  }
 }
