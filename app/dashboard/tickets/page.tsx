@@ -46,7 +46,7 @@ export default function TicketsPage() {
       ticket.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "All" || ticket.status === statusFilter;
     return matchesSearch && matchesStatus;
-  });
+  })?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
     <div className="container mx-auto p-6">

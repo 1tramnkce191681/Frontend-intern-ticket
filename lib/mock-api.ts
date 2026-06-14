@@ -86,12 +86,11 @@ const comments: (Comment & { author: string })[] = [
 export async function getTickets(search?: string): Promise<Ticket[]> {
   await delay(400);
 
-  if (search) {
-    const term = search.toLowerCase();
-    return tickets.filter((t) => t.title.toLowerCase().includes(term));
-  }
+  const filtered = search
+    ? tickets.filter((t) => t.title.toLowerCase().includes(search.toLowerCase()))
+    : [...tickets];
 
-  return [...tickets];
+  return filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export async function getTicketById(id: string): Promise<TicketWithComments> {

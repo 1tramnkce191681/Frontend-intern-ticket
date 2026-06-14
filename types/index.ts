@@ -13,6 +13,7 @@ export interface Comment {
   ticketId: string;
   content: string;
   createdAt: string;
+  author?: string;
 }
 
 export interface TicketWithComments extends Ticket {

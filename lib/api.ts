@@ -1,12 +1,6 @@
 import axios from "axios";
 import type { Ticket, Comment, TicketStatus, TicketWithComments } from "@/types";
-import {
-  getTickets as mockGetTickets,
-  getTicketById as mockGetTicketById,
-  createTicket as mockCreateTicket,
-  updateTicketStatus as mockUpdateTicketStatus,
-  addComment as mockAddComment,
-} from "@/lib/mock-api";
+// No longer importing from mock-api as we will use actual API routes
 
 const AUTH_COOKIE = "auth-token";
 
@@ -20,35 +14,55 @@ export const apiClient = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// --- Ticket API Calls ---
 export async function getTickets(search?: string): Promise<Ticket[]> {
-  return mockGetTickets(search);
+  const response = await apiClient.get<Ticket[]>("/tickets", { params: { search } });
+  return response.data;
 }
 
 export async function getTicketById(id: string): Promise<TicketWithComments> {
-  return mockGetTicketById(id);
+  const response = await apiClient.get<TicketWithComments>(`/tickets/${id}`);
+  return response.data;
 }
 
 export async function createTicket(data: {
   title: string;
   description: string;
 }): Promise<Ticket> {
-  return mockCreateTicket(data);
+  const response = await apiClient.post<Ticket>("/tickets", data);
+  return response.data;
 }
 
 export async function updateTicketStatus(
   id: string,
   status: TicketStatus
 ): Promise<Ticket> {
-  return mockUpdateTicketStatus(id, status);
+  const response = await apiClient.patch<Ticket>(`/tickets/${id}`, { status });
+  return response.data;
 }
 
+export async function updateTicket(
+  id: string,
+  data: { title?: string; description?: string }
+): Promise<Ticket> {
+  const response = await apiClient.patch<Ticket>(`/tickets/${id}`, data);
+  return response.data;
+}
+
+export async function deleteTicket(id: string): Promise<void> {
+  await apiClient.delete(`/tickets/${id}`);
+}
+
+// --- Comment API Calls ---
 export async function addComment(
   ticketId: string,
   content: string
 ): Promise<Comment> {
-  return mockAddComment(ticketId, content);
+  const response = await apiClient.post<Comment>(`/tickets/${ticketId}/comments`, { content });
+  return response.data;
 }
 
+// --- Auth API Calls (mocked for now) ---
 export interface LoginCredentials {
   email: string;
   password: string;

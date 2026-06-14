@@ -1,6 +1,6 @@
 # Internal Ticket Management System
 
-## Project Overview
+## Project Introduction
 This is my submission for the Frontend Intern Assignment #1. It is a full-featured internal support ticket application built from scratch over 5 working days. The goal of this project was to implement a clean, type-safe React application using the modern Next.js App Router and TanStack Query for server state management.
 
 ## Tech Stack
@@ -12,7 +12,7 @@ As per the assignment requirements, the following tools were used:
 - **Form Handling:** React Hook Form & Zod (Schema-based validation)
 - **HTTP Client:** Axios (Wrapped in a custom instance)
 
-## Prerequisites
+## Installation Prerequisites
 - **Node.js:** 18.x or later
 - **Package Manager:** npm
 
@@ -37,6 +37,8 @@ As per the assignment requirements, the following tools were used:
 4. **View the app:**
    Open http://localhost:3000 in your browser.
 
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
 ## Architecture Notes
 
 ### 1. Folder Structure
@@ -57,7 +59,7 @@ I implemented route protection using **Next.js Middleware**. The middleware chec
 - Efficient cache invalidation (e.g., refetching the ticket list automatically after a new ticket is created).
 
 ## Mock API (Option A)
-Since there is no real backend, I implemented **Option A** using a `lib/mock-api.ts` file. 
+Since there is no real backend, I implemented **Option A** using a `lib/mock-api.ts` file.
 - It uses an in-memory array to store data during the session.
 - All functions return Promises with a `setTimeout` (400ms - 800ms) to simulate realistic network latency.
 - This allowed me to properly implement and test loading skeletons and "Retry" logic for failed requests.
@@ -71,13 +73,6 @@ Since there is no real backend, I implemented **Option A** using a `lib/mock-api
 ### Future Improvements
 - **Optimistic Updates:** I would like to add optimistic updates for status changes so the UI reflects the change immediately before the API responds.
 - **Global Error Boundary:** Adding a root-level error boundary to catch unexpected crashes more gracefully.
-
----
-
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

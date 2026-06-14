@@ -107,6 +107,20 @@ export function updateTicketStatus(id: string, status: Ticket["status"]): Ticket
 }
 
 /**
+ * Update ticket title and description
+ */
+export function updateTicket(id: string, data: { title?: string; description?: string }): Ticket | null {
+  const db = readDb();
+  const ticketIndex = db.tickets.findIndex((t) => t.id === id);
+
+  if (ticketIndex === -1) return null;
+
+  db.tickets[ticketIndex] = { ...db.tickets[ticketIndex], ...data };
+  writeDb(db);
+
+  return db.tickets[ticketIndex];
+}
+/**
  * Get comments for a ticket
  */
 export function getCommentsByTicketId(ticketId: string): Comment[] {
@@ -139,6 +153,25 @@ export function addComment(ticketId: string, content: string): Comment {
   writeDb(db);
   
   return newComment;
+}
+
+/**
+ * Delete a ticket and its comments
+ */
+export function deleteTicket(id: string): boolean {
+  const db = readDb();
+  const initialLength = db.tickets.length;
+  
+  db.tickets = db.tickets.filter((t) => t.id !== id);
+  
+  if (db.tickets.length === initialLength) return false;
+
+  // Clean up comments associated with this ticket
+  delete db.comments[id];
+  
+  writeDb(db);
+  
+  return true;
 }
 
 /**

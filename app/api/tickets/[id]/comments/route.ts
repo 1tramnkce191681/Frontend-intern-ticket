@@ -1,28 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCommentsByTicketId, addComment } from "@/lib/api/db";
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const comments = getCommentsByTicketId(id);
-    return NextResponse.json(comments, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch comments" },
-      { status: 500 }
-    );
-  }
-}
+import { addComment, getTicketById } from "@/lib/api/db";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const ticketId = params.id;
     const { content } = await request.json();
 
     if (!content) {
@@ -32,12 +16,20 @@ export async function POST(
       );
     }
 
-    const newComment = addComment(id, content);
+    // Check if ticket exists before adding comment
+    const ticket = getTicketById(ticketId);
+    if (!ticket) {
+      return NextResponse.json(
+        { error: "Ticket not found" },
+        { status: 404 }
+      );
+    }
+
+    const newComment = addComment(ticketId, content);
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to add comment" },
-      { status: 400 }
-    );
+    console.error("Error adding comment:", error);
+    return NextResponse.json({ error: "Failed to add comment" }, { status: 500 });
   }
 }

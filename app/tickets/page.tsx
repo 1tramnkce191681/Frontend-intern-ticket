@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useTickets } from "@/hooks/useTickets";
-import { useLogout } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ErrorCard } from "@/components/error-card";
 import { SkeletonList } from "@/components/skeleton-list";
 import { StatusBadge } from "@/components/status-badge";
+import { TicketCard } from "@/components/ticket-card";
 import { cn } from "@/lib/utils";
 import { 
   Plus, 
@@ -16,13 +17,13 @@ import {
   Ticket as TicketIcon, 
   Clock, 
   CheckCircle2, 
-  AlertCircle,
-  ArrowUpRight
+  AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
 export default function TicketsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const { data: tickets, isLoading, isError, error, refetch } = useTickets(searchTerm);
@@ -40,8 +41,10 @@ export default function TicketsPage() {
   // Combine search (API) and status (Client-side) filters
   const displayedTickets = useMemo(() => {
     if (!tickets) return [];
-    if (statusFilter === "All") return tickets;
-    return tickets.filter((t) => t.status === statusFilter);
+    const filtered = statusFilter === "All" ? tickets : tickets.filter((t) => t.status === statusFilter);
+    return [...filtered].sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }, [tickets, statusFilter]);
 
   return (
@@ -54,12 +57,14 @@ export default function TicketsPage() {
             Manage and track customer support requests in real-time.
           </p>
         </div>
-        <Link href="/tickets/create">
-          <Button size="lg" className="shadow-lg shadow-primary/20">
-            <Plus className="mr-2 h-5 w-5" />
-            Create Ticket
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/tickets/create">
+            <Button size="lg" className="shadow-lg shadow-primary/20">
+              <Plus className="mr-2 h-5 w-5" />
+              Create Ticket
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Section */}
@@ -166,37 +171,9 @@ export default function TicketsPage() {
           <CardContent className="py-12 text-center text-zinc-500">No tickets found</CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {displayedTickets.map((ticket) => (
-            <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
-              <Card className="group relative overflow-hidden transition-all hover:shadow-md hover:border-primary/50 cursor-pointer h-full">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold bg-muted px-1.5 py-0.5 rounded text-muted-foreground">#TIC-{ticket.id}</span>
-                        <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
-                          {ticket.title}
-                        </CardTitle>
-                      </div>
-                      <CardDescription className="line-clamp-2 leading-relaxed">
-                        {ticket.description}
-                      </CardDescription>
-                    </div>
-                    <StatusBadge status={ticket.status} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between pt-4 border-t border-muted/50">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                      <Clock className="h-3 w-3" />
-                      {format(new Date(ticket.createdAt), "MMM d, yyyy")}
-                    </div>
-                    <ArrowUpRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            <TicketCard key={ticket.id} ticket={ticket} />
           ))}
         </div>
       )}

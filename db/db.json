@@ -36,6 +36,13 @@
       "description": "The cards are overlapping on smaller screens like iPhone SE",
       "status": "Open",
       "createdAt": "2026-06-05T17:30:00.000Z"
+    },
+    {
+      "id": "5",
+      "title": "Email notifications not sending",
+      "description": "Users are not receiving email updates when ticket status changes",
+      "status": "In Progress",
+      "createdAt": "2026-06-05T18:20:00.000Z"
     }
   ],
   "comments": {
@@ -45,24 +52,105 @@
         "ticketId": "1",
         "content": "We are investigating this issue",
         "createdAt": "2026-06-04T21:19:00.000Z"
+      },
+      {
+        "id": "5",
+        "ticketId": "1",
+        "content": "Found a potential cause in the login handler logic. Testing a fix now.",
+        "createdAt": "2026-06-05T10:00:00.000Z"
+      },
+      {
+        "id": "6",
+        "ticketId": "1",
+        "content": "The fix has been deployed to staging. Awaiting QA verification.",
+        "createdAt": "2026-06-05T14:30:00.000Z"
       }
     ],
     "2": [
       {
         "id": "2",
         "ticketId": "2",
-        "content": "Working on performance optimization",
+        "content": "Working on performance optimization.",
         "createdAt": "2026-06-05T09:19:00.000Z"
+      },
+      {
+        "id": "7",
+        "ticketId": "2",
+        "content": "Found the bottleneck in the database query. Proceeding to add indexing.",
+        "createdAt": "2026-06-05T11:00:00.000Z"
+      },
+      {
+        "id": "8",
+        "ticketId": "2",
+        "content": "Performance has significantly improved after optimization. Waiting for code review.",
+        "createdAt": "2026-06-05T14:30:00.000Z"
       }
     ],
     "3": [
       {
         "id": "3",
         "ticketId": "3",
-        "content": "Feature successfully deployed to production",
+        "content": "Feature successfully deployed to production.",
         "createdAt": "2026-06-05T14:19:00.000Z"
+      },
+      {
+        "id": "9",
+        "ticketId": "3",
+        "content": "The system is operating stably; no user issues reported yet.",
+        "createdAt": "2026-06-05T16:45:00.000Z"
+      },
+      {
+        "id": "10",
+        "ticketId": "3",
+        "content": "Closing this ticket in 24 hours if no further reports are received.",
+        "createdAt": "2026-06-05T18:00:00.000Z"
       }
     ],
-    "4": []
+    "4": [
+      {
+        "id": "11",
+        "ticketId": "4",
+        "content": "Reproduced the issue on older iPhone models.",
+        "createdAt": "2026-06-05T18:00:00.000Z"
+      },
+      {
+        "id": "12",
+        "ticketId": "4",
+        "content": "Adjusting Tailwind CSS breakpoints for better layout responsiveness.",
+        "createdAt": "2026-06-05T19:30:00.000Z"
+      },
+      {
+        "id": "13",
+        "ticketId": "4",
+        "content": "UI fixes completed. The layout now renders correctly across all screen sizes.",
+        "createdAt": "2026-06-05T20:30:00.000Z"
+      }
+    ],
+    "5": [
+      {
+        "id": "14",
+        "ticketId": "5",
+        "content": "Checking SMTP service logs to identify the root cause.",
+        "createdAt": "2026-06-05T19:00:00.000Z"
+      },
+      {
+        "id": "15",
+        "ticketId": "5",
+        "content": "The issue was caused by an expired API key. Renewed and updated the configuration.",
+        "createdAt": "2026-06-05T20:00:00.000Z"
+      },
+      {
+        "id": "16",
+        "ticketId": "5",
+        "content": "Sent a successful test email. Notification system is back online.",
+        "createdAt": "2026-06-05T21:00:00.000Z"
+      },
+      {
+        "id": "17",
+        "ticketId": "5",
+        "content": "hyvg",
+        "createdAt": "2026-06-14T16:51:28.293Z"
+      }
+    ]
   }
 }
