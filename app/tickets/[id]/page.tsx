@@ -229,7 +229,7 @@ export default function TicketDetailPage() {
                 Discussion ({ticket.comments.length})
               </div>
               
-              <CommentList comments={ticket.comments} isLoading={isLoading} />
+              <CommentList comments={ticket.comments || []} isLoading={isLoading} />
 
               <Card className="mt-8 overflow-hidden border-primary/10">
                 <CardContent className="p-0">
